@@ -1,0 +1,41 @@
+version: '3.7'
+services:
+
+  mysql4:
+    image: mysql:5.7.24
+    environment:
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_DATABASE: 'DOT_test'
+      MYSQL_USER: 'shoot'
+      MYSQL_PASSWORD: 'password'
+    ports:
+      - '3306:3306'
+    volumes:
+      - type: bind
+        source: ./volumes
+        target: /var/lib/mysql
+    container_name: mysql4
+    hostname: mysql4
+
+  api:
+    build:
+      dockerfile: Dockerfile
+      context: ./dot-test
+    volumes:
+      - type: bind
+        source: ./dot-test/src
+        target: /app/src
+    command: npm run start:debug
+    depends_on:
+      - mysql4
+    environment:
+      DBHOST: mysql4
+      DBPORT: 3306
+      DBUSERNAME: root
+      DBPASSWORD: password
+      DATABASE: DOT_test
+      APIPORT: 3000
+    ports:
+      - 3000:3000
+
+
